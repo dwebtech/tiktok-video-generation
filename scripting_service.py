@@ -15,8 +15,8 @@ messages = [
         "role": "system",
         "content": (
             "You are an artificial intelligence assistant that helps to generate engaging travel information. "
-            "You will be provided with a location, city or country and are supposed to give information about this place in an "
-            "engaging way. The response should be around 4 sentences."
+            "You will be provided with a location, city or country and are supposed to give information about "
+            "this place in an engaging way. The response should be around 4 sentences."
         ),
     },
     {

@@ -2,7 +2,7 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
-import voice_generator
+import services.voice_generator_service as voice_generator
 
 load_dotenv()
 

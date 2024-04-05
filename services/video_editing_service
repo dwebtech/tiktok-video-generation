@@ -39,18 +39,15 @@ def add_subtitles(input_video, subtitles):
     final_video.write_videofile('output_video_with_subtitles.mp4')
 
 def run(input_video):
+    # Open the video and audio
+    video_clip = VideoFileClip("video.mp4")
+    audio_clip = AudioFileClip("speech.mp3")
+    
+    # Concatenate the video clip with the audio clip
+    final_input_clip = video_clip.set_audio(audio_clip)
+    
+    # Export the final video with audio
+    final_input_clip.write_videofile("output3.mp4")
+    input_video = "output3.mp4"
     subtitles = create_subtitles(input_video)
     output_video = add_subtitles(input_video, subtitles)
-
-
-# Open the video and audio
-video_clip = VideoFileClip("video.mp4")
-audio_clip = AudioFileClip("speech.mp3")
-
-# Concatenate the video clip with the audio clip
-final_input_clip = video_clip.set_audio(audio_clip)
-
-# Export the final video with audio
-final_input_clip.write_videofile("output3.mp4")
-input_video = "output3.mp4"
-run(input_video)

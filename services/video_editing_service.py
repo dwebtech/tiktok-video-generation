@@ -1,53 +1,56 @@
-from moviepy.editor import VideoFileClip, concatenate_videoclips, CompositeVideoClip, TextClip, AudioFileClip
+from typing import Dict, List
+from moviepy.editor import VideoClip, concatenate_videoclips, CompositeVideoClip, TextClip, AudioClip
 from moviepy.video.tools.subtitles import SubtitlesClip
-import os
-import time
-import math
 from faster_whisper import WhisperModel
+from moviepy.video import fx as vfx
 
-def create_subtitles(input_video):
-    # create a video object and extract the audio
-    video_clip = VideoFileClip(input_video)
-    extracted_audio = f"audio-output.wav"
-    audio_clip = video_clip.audio
-    audio_clip.write_audiofile(extracted_audio)
-    # create a whisper model to use AI to detect the words being said
-    model = WhisperModel("small")
-    segments, info = model.transcribe(extracted_audio, language='en')
-    segments = list(segments)
-    subtitles = []
-    # place the subtitles 
-    for segment in segments:
-        subtitles.append({'text': segment.text, 'start': segment.start, 'end': segment.end})
+
+def create_subtitles_for_video(input_video: VideoClip) -> List[Dict[str, str]]:
+    """Create subtitles for a given video."""
+    audio: AudioClip = input_video.audio
+    model: WhisperModel = WhisperModel("small")
+    segments, _ = model.transcribe(audio, language='en')
+    subtitles: List[Dict[str, str]] = [{'text': segment.text, 'start': segment.start, 'end': segment.end} for segment in list(segments)]
     return subtitles
 
-def add_subtitles(input_video, subtitles):
+def add_subtitles(input_video: VideoClip, subtitles: List[Dict[str, str]]):
+    """Add subtitles to a given video."""
     # Load the video clip
-    video_clip = VideoFileClip(input_video)
-    video_width, video_height = video_clip.size
+    video_width, video_height = input_video.size
     
     # Create TextClips for each subtitle
-    subtitle_clips = []
+    subtitle_clips: List[TextClip] = []
     for subtitle in subtitles:
         text_clip = TextClip(subtitle['text'], fontsize=75, color='white', bg_color='black', size=(video_width*.75, None), method='caption')
         text_clip = text_clip.set_position(('center', video_height*(4/5))).set_start(subtitle['start']).set_end(subtitle['end'])
         subtitle_clips.append(text_clip)
     
     # Composite the video with the subtitles
-    final_video = CompositeVideoClip([video_clip] + subtitle_clips)
-    # Write the final video to a file
-    final_video.write_videofile('output_video_with_subtitles.mp4')
+    final_video = CompositeVideoClip([input_video] + subtitle_clips)
+    return final_video
 
-def run(input_video):
-    # Open the video and audio
-    video_clip = VideoFileClip("video.mp4")
-    audio_clip = AudioFileClip("speech.mp3")
-    
-    # Concatenate the video clip with the audio clip
-    final_input_clip = video_clip.set_audio(audio_clip)
-    
-    # Export the final video with audio
-    final_input_clip.write_videofile("output3.mp4")
-    input_video = "output3.mp4"
-    subtitles = create_subtitles(input_video)
-    output_video = add_subtitles(input_video, subtitles)
+def merge_videos(input_videos: List[VideoClip]) -> VideoClip:
+    """Merge multiple videos into one applying blurry transition."""
+    # Apply a blurry transition between videos
+    blurred_videos = []
+    for i, video in enumerate(input_videos):
+        if i > 0:
+            transition_duration = min(0.3, input_videos[i-1].duration, video.duration)
+            # Apply the blurry transition to the current video
+            blurred_video = video.fx(vfx.blur, ksize=10).crossfadein(transition_duration)
+            blurred_videos.append(blurred_video)
+        else:
+            blurred_videos.append(video)
+
+    # Concatenate the blurred videos
+    blurred_final_video = concatenate_videoclips(blurred_videos)
+    return blurred_final_video
+
+def merge_videos_and_add_subtitles(input_videos: List[VideoClip]) -> VideoClip:
+    """Merge multiple videos into one and add subtitles."""
+    videos_to_merge: List[VideoClip] = []
+    for input_video in input_videos:
+        subtitles: List[Dict[str, str]] = create_subtitles_for_video(input_video)
+        videos_to_merge.append(add_subtitles(input_video, subtitles))
+    merged_video = merge_videos(videos_to_merge)
+    return merged_video

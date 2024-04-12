@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Tuple
 from xml.dom.minidom import Document
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -8,10 +8,10 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 
 load_dotenv()
 
-def generate_image_prompts_for_text(text: str, location: str) -> List[str]:
+def generate_image_prompts_for_text(text: str, location: str) -> List[Tuple[str, str]]:
     """Generates picture prompts for a given text and location."""
     segments: List[str] = generate_semantic_segments(text)
-    return [create_picture_prompt_for_segment(segment, location) for segment in segments]
+    return [(segment, create_picture_prompt_for_segment(segment, location)) for segment in segments]
 
 
 def generate_semantic_segments(text: str) -> List[str]:

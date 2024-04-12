@@ -6,11 +6,10 @@ import services.voice_generator_service as voice_generator
 
 load_dotenv()
 
-API_KEY = os.getenv("PERPLEXITY_API_KEY")
-# Ask the user for input
-location = input("Please enter a location for travel information: ")
-
-messages = [
+def generate_script(location: str) -> str:
+    API_KEY: str = os.getenv("PERPLEXITY_API_KEY")
+    # Ask the user for input
+    messages: list[dict[str, str]] = [
     {
         "role": "system",
         "content": (
@@ -25,15 +24,17 @@ messages = [
     },
 ]
 
-client = OpenAI(api_key=API_KEY, base_url="https://api.perplexity.ai")
+    client: OpenAI = OpenAI(api_key=API_KEY, base_url="https://api.perplexity.ai")
 
-# Chat completion without streaming
-response = client.chat.completions.create(
+    # Chat completion without streaming
+    response: OpenAI.ChatCompletion = client.chat.completions.create(
     model="mistral-7b-instruct",
     messages=messages,
-)
-message_content = response.choices[0].message.content
+    )
+    message_content: str = response.choices[0].message.content
+    return message_content
 
-print(message_content)
-
-voice_generator.synthesize_speech(message_content)
+if __name__ == "__main__":
+    location: str = input("Please enter the location: ")
+    message_content: str = generate_script(location)
+    print(message_content)

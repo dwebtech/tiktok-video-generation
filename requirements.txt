@@ -7,7 +7,7 @@ attrs==23.2.0
 av==11.0.0
 boto3==1.34.73
 botocore==1.34.73
-brotli-python
+brotli==1.1.0
 bzip2==1.0.8
 ca-certificates==2024.2.2
 certifi==2024.2.2

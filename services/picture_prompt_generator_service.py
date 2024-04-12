@@ -16,7 +16,7 @@ def generate_image_prompts_for_text(text: str, location: str) -> List[Tuple[str,
 
 def generate_semantic_segments(text: str) -> List[str]:
     """Splits the input text semantically into segments using OpenAI embeddings."""
-    text_splitter: SemanticChunker = SemanticChunker(OpenAIEmbeddings(), breakpoint_threshold_type="percentile", breakpoint_threshold_amount=0.5)
+    text_splitter: SemanticChunker = SemanticChunker(OpenAIEmbeddings(api_key=os.getenv("OPENAI_API_KEY")), breakpoint_threshold_type="percentile", breakpoint_threshold_amount=0.5)
     docs: List[Document] = text_splitter.create_documents([text])
     return list(map(lambda doc: doc.page_content, docs))
 

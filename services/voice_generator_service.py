@@ -9,8 +9,12 @@ from tempfile import gettempdir
 def synthesize_speech(text, voice_id="Stephen"):
     """Synthesize speech from the provided text using Amazon Polly."""
 
-    # Create a session using the credentials and region defined in the AWS credentials file (~/.aws/credentials).
-    session = Session()
+    # Create a session using explicit credentials passed to the function.
+    session = Session(
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        region_name=aws_region
+    )
     polly = session.client("polly")
 
     try:
